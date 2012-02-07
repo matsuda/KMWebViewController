@@ -15,6 +15,10 @@
 		0E6DFC9014E11FB4003D8915 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E6DFC8C14E11FB4003D8915 /* main.m */; };
 		0E6DFC9914E120E8003D8915 /* KMWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E6DFC9814E120E8003D8915 /* KMWebViewController.m */; };
 		0E6DFCA214E123AA003D8915 /* KMWebViewController.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 0E6DFCA114E123AA003D8915 /* KMWebViewController.bundle */; };
+		0E6DFCAC14E12708003D8915 /* HomeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E6DFCAA14E12708003D8915 /* HomeViewController.m */; };
+		0E6DFCAD14E12708003D8915 /* HomeViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0E6DFCAB14E12708003D8915 /* HomeViewController.xib */; };
+		0E6DFCB114E1322F003D8915 /* InheritanceViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E6DFCAF14E1322F003D8915 /* InheritanceViewController.m */; };
+		0E6DFCB214E1322F003D8915 /* InheritanceViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0E6DFCB014E1322F003D8915 /* InheritanceViewController.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,6 +35,12 @@
 		0E6DFC9714E120E8003D8915 /* KMWebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KMWebViewController.h; sourceTree = "<group>"; };
 		0E6DFC9814E120E8003D8915 /* KMWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KMWebViewController.m; sourceTree = "<group>"; };
 		0E6DFCA114E123AA003D8915 /* KMWebViewController.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = KMWebViewController.bundle; sourceTree = "<group>"; };
+		0E6DFCA914E12708003D8915 /* HomeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HomeViewController.h; sourceTree = "<group>"; };
+		0E6DFCAA14E12708003D8915 /* HomeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HomeViewController.m; sourceTree = "<group>"; };
+		0E6DFCAB14E12708003D8915 /* HomeViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = HomeViewController.xib; sourceTree = "<group>"; };
+		0E6DFCAE14E1322F003D8915 /* InheritanceViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InheritanceViewController.h; sourceTree = "<group>"; };
+		0E6DFCAF14E1322F003D8915 /* InheritanceViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InheritanceViewController.m; sourceTree = "<group>"; };
+		0E6DFCB014E1322F003D8915 /* InheritanceViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = InheritanceViewController.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -78,6 +88,7 @@
 		0E6DFC8514E11FB4003D8915 /* KMWebViewControllerSample */ = {
 			isa = PBXGroup;
 			children = (
+				0E6DFCA714E126FA003D8915 /* Classes */,
 				0E6DFC8614E11FB4003D8915 /* AppDelegate.h */,
 				0E6DFC8714E11FB4003D8915 /* AppDelegate.m */,
 				0E6DFC8814E11FB4003D8915 /* InfoPlist.strings */,
@@ -96,6 +107,19 @@
 				0E6DFC9814E120E8003D8915 /* KMWebViewController.m */,
 			);
 			path = KMWebViewController;
+			sourceTree = "<group>";
+		};
+		0E6DFCA714E126FA003D8915 /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				0E6DFCA914E12708003D8915 /* HomeViewController.h */,
+				0E6DFCAA14E12708003D8915 /* HomeViewController.m */,
+				0E6DFCAB14E12708003D8915 /* HomeViewController.xib */,
+				0E6DFCAE14E1322F003D8915 /* InheritanceViewController.h */,
+				0E6DFCAF14E1322F003D8915 /* InheritanceViewController.m */,
+				0E6DFCB014E1322F003D8915 /* InheritanceViewController.xib */,
+			);
+			path = Classes;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -150,6 +174,8 @@
 			files = (
 				0E6DFC8E14E11FB4003D8915 /* InfoPlist.strings in Resources */,
 				0E6DFCA214E123AA003D8915 /* KMWebViewController.bundle in Resources */,
+				0E6DFCAD14E12708003D8915 /* HomeViewController.xib in Resources */,
+				0E6DFCB214E1322F003D8915 /* InheritanceViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -163,6 +189,8 @@
 				0E6DFC8D14E11FB4003D8915 /* AppDelegate.m in Sources */,
 				0E6DFC9014E11FB4003D8915 /* main.m in Sources */,
 				0E6DFC9914E120E8003D8915 /* KMWebViewController.m in Sources */,
+				0E6DFCAC14E12708003D8915 /* HomeViewController.m in Sources */,
+				0E6DFCB114E1322F003D8915 /* InheritanceViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

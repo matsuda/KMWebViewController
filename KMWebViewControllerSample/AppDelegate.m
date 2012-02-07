@@ -7,14 +7,17 @@
 //
 
 #import "AppDelegate.h"
+#import "HomeViewController.h"
 
 @implementation AppDelegate
 
 @synthesize window = _window;
+@synthesize naviController = _naviController;
 
 - (void)dealloc
 {
     [_window release];
+    [_naviController release];
     [super dealloc];
 }
 
@@ -22,6 +25,10 @@
 {
     self.window = [[[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]] autorelease];
     // Override point for customization after application launch.
+    UIViewController *viewController = [[[HomeViewController alloc] initWithNibName:NSStringFromClass([HomeViewController class]) bundle:nil] autorelease];
+    self.naviController = [[[UINavigationController alloc] initWithRootViewController:viewController] autorelease];
+    self.window.rootViewController = self.naviController;
+
     self.window.backgroundColor = [UIColor whiteColor];
     [self.window makeKeyAndVisible];
     return YES;
