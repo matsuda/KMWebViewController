@@ -10,16 +10,10 @@
 
 static CGFloat kNavigationBarHeight = 44.f;
 static CGFloat kToolBarHeight = 44.f;
+static CGFloat kTabBarHeight = 49.f;
 static NSString *kTitleLoading = @"Loading...";
 
 @interface KMWebViewController ()
-
-@property (nonatomic, retain) UIBarButtonItem *homeButton;
-@property (nonatomic, retain) UIBarButtonItem *backButton;
-@property (nonatomic, retain) UIBarButtonItem *forwardButton;
-@property (nonatomic, retain) UIBarButtonItem *reloadButton;
-@property (nonatomic, retain) UIBarButtonItem *stopButton;
-@property (nonatomic, assign) CGFloat currentToolBarHeight;
 
 - (void)setupToolBar;
 - (void)setupWebView;
@@ -32,17 +26,17 @@ static NSString *kTitleLoading = @"Loading...";
 
 @implementation KMWebViewController
 
-@synthesize toolBar = _toolBar;
 @synthesize webView = _webView;
 @synthesize indicatorView = _indicatorView;
+@synthesize toolBar = _toolBar;
+@synthesize hideToolBar = _hideToolBar;
+@synthesize currentToolBarHeight = _currentToolBarHeight;
 @synthesize homeButton = _homeButton;
 @synthesize backButton = _backButton;
 @synthesize forwardButton = _forwardButton;
 @synthesize reloadButton = _reloadButton;
 @synthesize stopButton = _stopButton;
 @synthesize url = _url;
-@synthesize hideToolBar = _hideToolBar;
-@synthesize currentToolBarHeight = _currentToolBarHeight;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -75,6 +69,11 @@ static NSString *kTitleLoading = @"Loading...";
         f.size.height -= kNavigationBarHeight;
         self.view.frame = f;
     }
+    if (self.tabBarController && self.tabBarController.tabBar.hidden) {
+        CGRect f = self.view.frame;
+        f.size.height -= kTabBarHeight;
+        self.view.frame = f;
+    }
     [self setupToolBar];
     [self setupWebView];
     [self setupActivityIndicatorView];
@@ -97,9 +96,9 @@ static NSString *kTitleLoading = @"Loading...";
 {
     [super viewDidUnload];
     // Release any retained subviews of the main view.
-    self.toolBar = nil;
     self.webView = nil;
     self.indicatorView = nil;
+    self.toolBar = nil;
     self.homeButton = nil;
     self.backButton = nil;
     self.forwardButton = nil;
@@ -115,9 +114,9 @@ static NSString *kTitleLoading = @"Loading...";
 
 - (void)dealloc
 {
-    [_toolBar release], _toolBar = nil;
     [_webView release], _webView = nil;
     [_indicatorView release], _indicatorView = nil;
+    [_toolBar release], _toolBar = nil;
     [_homeButton release], _homeButton = nil;
     [_backButton release], _backButton = nil;
     [_forwardButton release], _forwardButton = nil;

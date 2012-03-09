@@ -12,9 +12,18 @@
 
 @property (nonatomic, retain) UIWebView *webView;
 @property (nonatomic, retain) UIActivityIndicatorView *indicatorView;
+
 @property (nonatomic, retain) UIToolbar *toolBar;
-@property (nonatomic, copy)   NSString *url;
 @property (nonatomic, assign) BOOL hideToolBar;
+@property (nonatomic, assign) CGFloat currentToolBarHeight;
+
+@property (nonatomic, retain) UIBarButtonItem *homeButton;
+@property (nonatomic, retain) UIBarButtonItem *backButton;
+@property (nonatomic, retain) UIBarButtonItem *forwardButton;
+@property (nonatomic, retain) UIBarButtonItem *reloadButton;
+@property (nonatomic, retain) UIBarButtonItem *stopButton;
+
+@property (nonatomic, copy)   NSString *url;
 
 - (void)openURL:(NSString *)url;
 
