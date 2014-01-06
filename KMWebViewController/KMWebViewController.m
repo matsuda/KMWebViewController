@@ -13,36 +13,19 @@ static CGFloat kToolBarHeight = 44.f;
 static CGFloat kTabBarHeight = 49.f;
 static NSString *kTitleLoading = @"Loading...";
 
-@interface KMWebViewController ()
+#define iOSVersionGreaterThaniOS7 \
+    !(floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_6_1)
 
-- (void)setupToolBar;
-- (void)setupWebView;
-- (void)setupActivityIndicatorView;
-- (void)loadWeb;
-- (void)toggleToolBar;
-- (void)backToApp;
+@interface KMWebViewController ()
 
 @end
 
 @implementation KMWebViewController
 
-@synthesize webView = _webView;
-@synthesize indicatorView = _indicatorView;
-@synthesize toolBar = _toolBar;
-@synthesize hideToolBar = _hideToolBar;
-@synthesize currentToolBarHeight = _currentToolBarHeight;
-@synthesize homeButton = _homeButton;
-@synthesize backButton = _backButton;
-@synthesize forwardButton = _forwardButton;
-@synthesize reloadButton = _reloadButton;
-@synthesize stopButton = _stopButton;
-@synthesize url = _url;
-
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-        // Custom initialization
         _hideToolBar = NO;
         _currentToolBarHeight = 0.f;
     }
@@ -64,66 +47,62 @@ static NSString *kTitleLoading = @"Loading...";
 {
     [super loadView];
 
-    if (self.navigationController) {
-        CGRect f = self.view.frame;
-        f.size.height -= kNavigationBarHeight;
-        self.view.frame = f;
+    if (!iOSVersionGreaterThaniOS7) {
+        if (self.navigationController && !self.navigationController.navigationBar.hidden) {
+            self.view.frame = ({
+                CGRect frame = self.view.frame;
+                frame.size.height -= kNavigationBarHeight;
+                frame;
+            });
+        }
     }
-    if (self.tabBarController && self.tabBarController.tabBar.hidden) {
-        CGRect f = self.view.frame;
-        f.size.height -= kTabBarHeight;
-        self.view.frame = f;
-    }
-    [self setupToolBar];
-    [self setupWebView];
-    [self setupActivityIndicatorView];
-}
 
-// Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
-- (void)viewDidLoad
-{
-    [super viewDidLoad];
-    [self toggleToolBar];
+    CGRect f = self.view.bounds;
+    UIWebView *webView = self.webView;
+    webView.frame = f;
+    [self.view addSubview:webView];
+
+    UIToolbar *toolBar = self.toolBar;
+    toolBar.frame = (CGRect){f.origin.x, f.size.height - kToolBarHeight, f.size.width, kToolBarHeight};
+    [self.view addSubview:toolBar];
+    self.currentToolBarHeight = toolBar.frame.size.height;
+
+    UIActivityIndicatorView *indicatorView = self.indicatorView;
+    indicatorView.frame = ({
+        CGRect frame = self.indicatorView.frame;
+        CGRect wf = webView.frame;
+        frame.origin.x = (wf.size.width - frame.size.width) / 2;
+        frame.origin.y = (wf.size.height - frame.size.height) / 2;
+        frame;
+    });
+    [self.view addSubview:indicatorView];
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    [self toggleToolBar];
     if (self.url) [self loadWeb];
 }
 
-- (void)viewDidUnload
+- (void)viewWillDisappear:(BOOL)animated
 {
-    [super viewDidUnload];
-    // Release any retained subviews of the main view.
-    self.webView = nil;
-    self.indicatorView = nil;
-    self.toolBar = nil;
-    self.homeButton = nil;
-    self.backButton = nil;
-    self.forwardButton = nil;
-    self.reloadButton = nil;
-    self.stopButton = nil;
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+    if ([self.webView isLoading]) {
+        [self.webView stopLoading];
+    }
+    [super viewWillDisappear:animated];
+}
+
+- (void)dealloc
+{
+    self.webView.delegate = nil;
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
     // Return YES for supported orientations
     return (interfaceOrientation == UIInterfaceOrientationPortrait);
-}
-
-- (void)dealloc
-{
-    [_webView release], _webView = nil;
-    [_indicatorView release], _indicatorView = nil;
-    [_toolBar release], _toolBar = nil;
-    [_homeButton release], _homeButton = nil;
-    [_backButton release], _backButton = nil;
-    [_forwardButton release], _forwardButton = nil;
-    [_reloadButton release], _reloadButton = nil;
-    [_stopButton release], _stopButton = nil;
-    [_url release], _url = nil;
-    [super dealloc];
 }
 
 #pragma mark - Target
@@ -159,58 +138,6 @@ static NSString *kTitleLoading = @"Loading...";
 
 #pragma mark - Private
 
-- (void)setupToolBar
-{
-    CGRect f = self.view.bounds;
-    self.toolBar = [[[UIToolbar alloc] initWithFrame:CGRectMake(f.origin.x, f.size.height - kToolBarHeight, f.size.width, kToolBarHeight)] autorelease];
-
-    self.homeButton = [[[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"KMWebViewController.bundle/home.png"] style:UIBarButtonItemStylePlain target:self action:@selector(didTapHomeButton:)] autorelease];
-
-    self.backButton = [[[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"KMWebViewController.bundle/arrow_left.png"] style:UIBarButtonItemStylePlain target:self action:@selector(didTapBackButton:)] autorelease];
-    self.backButton.enabled = NO;
-
-    self.forwardButton = [[[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"KMWebViewController.bundle/arrow_right.png"] style:UIBarButtonItemStylePlain target:self action:@selector(didTapForwardButton:)] autorelease];
-    self.forwardButton.enabled = NO;
-
-    self.reloadButton = [[[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"KMWebViewController.bundle/reload.png"] style:UIBarButtonItemStylePlain target:self action:@selector(didTapReloadButton:)] autorelease];
-    self.reloadButton.enabled = NO;
-
-    self.stopButton = [[[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"KMWebViewController.bundle/cancel.png"] style:UIBarButtonItemStylePlain target:self action:@selector(didTapStopButton:)] autorelease];
-    self.stopButton.enabled = NO;
-
-    UIBarItem* space = [[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil] autorelease];
-    [self.toolBar setItems:[NSArray arrayWithObjects:self.homeButton, space, self.backButton, space, self.forwardButton, space, self.reloadButton, space, self.stopButton, nil]];
-    [self.view addSubview:self.toolBar];
-    self.toolBar.hidden = YES;
-    [self.toolBar setBarStyle:UIBarStyleBlack];
-    self.currentToolBarHeight = self.toolBar.frame.size.height;
-}
-
-- (void)setupWebView
-{
-    CGRect f = self.view.bounds;
-    self.webView = [[[UIWebView alloc] initWithFrame:CGRectMake(f.origin.x, f.origin.y, f.size.width, f.size.height)] autorelease];
-    if (self.toolBar) {
-        CGRect wf = self.webView.frame;
-        wf.size.height -= self.toolBar.frame.size.height;
-        self.webView.frame = wf;
-    }
-    self.webView.delegate = self;
-    [self.view addSubview:self.webView];
-}
-
-- (void)setupActivityIndicatorView
-{
-    self.indicatorView = [[[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge] autorelease];
-    [self.indicatorView setHidesWhenStopped:YES];
-    CGRect f = self.indicatorView.frame;
-    CGRect wf = self.webView.frame;
-    f.origin.x = (wf.size.width - f.size.width) / 2;
-    f.origin.y = (wf.size.height - f.size.height) / 2;
-    self.indicatorView.frame = f;
-    [self.view addSubview:self.indicatorView];
-}
-
 - (void)loadWeb
 {
     [self.indicatorView startAnimating];
@@ -219,17 +146,35 @@ static NSString *kTitleLoading = @"Loading...";
 
 - (void)toggleToolBar
 {
+    if (!iOSVersionGreaterThaniOS7) {
+        if (self.tabBarController && !self.tabBarController.tabBar.hidden) {
+            self.view.frame = ({
+                CGRect frame = self.view.frame;
+                frame.size.height -= kTabBarHeight;
+                frame;
+            });
+        }
+    }
     CGRect tf = self.toolBar.frame;
-    CGRect wf = self.webView.frame;
     if (self.hideToolBar && self.currentToolBarHeight) {
         tf.size.height -= self.currentToolBarHeight;
-        wf.size.height += self.currentToolBarHeight;
     } else if (!self.hideToolBar && !self.currentToolBarHeight) {
         tf.size.height += kToolBarHeight;
-        wf.size.height -= kToolBarHeight;
     }
     self.toolBar.frame = tf;
-    self.webView.frame = wf;
+
+    CGFloat insetsBottom = self.hideToolBar ? 0.f : kToolBarHeight;
+    self.webView.scrollView.contentInset = ({
+        UIEdgeInsets insets = self.webView.scrollView.contentInset;
+        insets.bottom = insetsBottom;
+        insets;
+    });
+    self.webView.scrollView.scrollIndicatorInsets = ({
+        UIEdgeInsets insets = self.webView.scrollView.scrollIndicatorInsets;
+        insets.bottom = insetsBottom;
+        insets;
+    });
+
     self.currentToolBarHeight = self.toolBar.frame.size.height;
     if (self.currentToolBarHeight) self.toolBar.hidden = NO;
 }
@@ -239,13 +184,107 @@ static NSString *kTitleLoading = @"Loading...";
     if (self.navigationController) {
         [self.navigationController popViewControllerAnimated:YES];
     } else {
-        [self dismissModalViewControllerAnimated:YES];
+        [self dismissViewControllerAnimated:YES completion:nil];
     }
+}
+
+- (UIToolbar *)toolBar
+{
+    if (!_toolBar) {
+        UIToolbar *toolBar = [[UIToolbar alloc] initWithFrame:CGRectZero];
+        if (!iOSVersionGreaterThaniOS7) {
+            [toolBar setBarStyle:UIBarStyleBlack];
+        }
+        toolBar.hidden = YES;
+
+        UIBarItem* space = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
+        [toolBar setItems:@[self.homeButton, space, self.backButton, space, self.forwardButton, space, self.reloadButton, space, self.stopButton]];
+        _toolBar = toolBar;
+    }
+    return _toolBar;
+}
+
+- (UIBarButtonItem *)homeButton
+{
+    if (!_homeButton) {
+        UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"KMWebViewController.bundle/home.png"]
+                                                                 style:UIBarButtonItemStylePlain target:self action:@selector(didTapHomeButton:)];
+        _homeButton = item;
+    }
+    return _homeButton;
+}
+
+- (UIBarButtonItem *)backButton
+{
+    if (!_backButton) {
+        UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"KMWebViewController.bundle/back.png"]
+                                                                 style:UIBarButtonItemStylePlain target:self action:@selector(didTapBackButton:)];
+        item.enabled = NO;
+        _backButton = item;
+    }
+    return _backButton;
+}
+
+- (UIBarButtonItem *)forwardButton
+{
+    if (!_forwardButton) {
+        UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"KMWebViewController.bundle/forward.png"]
+                                                                 style:UIBarButtonItemStylePlain target:self action:@selector(didTapForwardButton:)];
+        item.enabled = NO;
+        _forwardButton = item;
+    }
+    return _forwardButton;
+}
+
+- (UIBarButtonItem *)reloadButton
+{
+    if (!_reloadButton) {
+        UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"KMWebViewController.bundle/reload.png"]
+                                                                 style:UIBarButtonItemStylePlain target:self action:@selector(didTapReloadButton:)];
+        item.enabled = NO;
+        _reloadButton = item;
+    }
+    return _reloadButton;
+}
+
+- (UIBarButtonItem *)stopButton
+{
+    if (!_stopButton) {
+        UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"KMWebViewController.bundle/cancel.png"]
+                                                                 style:UIBarButtonItemStylePlain target:self action:@selector(didTapStopButton:)];
+        item.enabled = NO;
+        _stopButton = item;
+    }
+    return _stopButton;
+}
+
+- (UIWebView *)webView
+{
+    if (!_webView) {
+        UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectZero];
+        webView.backgroundColor = [UIColor whiteColor];
+        webView.scalesPageToFit = YES;
+        webView.autoresizingMask = (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
+        webView.delegate = self;
+        _webView = webView;
+    }
+    return _webView;
+}
+
+- (UIActivityIndicatorView *)indicatorView
+{
+    if (!_indicatorView) {
+        UIActivityIndicatorView *indicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+        [indicatorView setHidesWhenStopped:YES];
+        _indicatorView = indicatorView;
+    }
+    return _indicatorView;
 }
 
 #pragma mark - UIWebViewDelegate
 
-- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
+- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request
+ navigationType:(UIWebViewNavigationType)navigationType
 {
     self.backButton.enabled = [self.webView canGoBack];
     self.forwardButton.enabled = [self.webView canGoForward];
@@ -254,26 +293,37 @@ static NSString *kTitleLoading = @"Loading...";
 
 - (void)webViewDidStartLoad:(UIWebView *)webView
 {
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
     self.backButton.enabled = [self.webView canGoBack];
     self.forwardButton.enabled = [self.webView canGoForward];
     self.reloadButton.enabled = NO;
     self.stopButton.enabled = YES;
-    self.title = kTitleLoading;
+    if (self.navigationController) {
+        self.navigationItem.title = kTitleLoading;
+    } else {
+        self.title = kTitleLoading;
+    }
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
     self.backButton.enabled = [self.webView canGoBack];
     self.forwardButton.enabled = [self.webView canGoForward];
     self.reloadButton.enabled = YES;
     self.stopButton.enabled = NO;
     [self.indicatorView stopAnimating];
-    self.title = [webView stringByEvaluatingJavaScriptFromString:@"document.title"];
+    NSString *title = [webView stringByEvaluatingJavaScriptFromString:@"document.title"];
+    if (self.navigationController) {
+        self.navigationItem.title = title;
+    } else {
+        self.title = title;
+    }
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
 {
-    [self.indicatorView stopAnimating];
+    // [self.indicatorView stopAnimating];
     [self webViewDidFinishLoad:webView];
 }
 

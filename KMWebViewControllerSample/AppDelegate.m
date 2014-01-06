@@ -11,22 +11,12 @@
 
 @implementation AppDelegate
 
-@synthesize window = _window;
-@synthesize naviController = _naviController;
-
-- (void)dealloc
-{
-    [_window release];
-    [_naviController release];
-    [super dealloc];
-}
-
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    self.window = [[[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]] autorelease];
+    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
-    UIViewController *viewController = [[[HomeViewController alloc] initWithNibName:NSStringFromClass([HomeViewController class]) bundle:nil] autorelease];
-    self.naviController = [[[UINavigationController alloc] initWithRootViewController:viewController] autorelease];
+    UIViewController *viewController = [[HomeViewController alloc] initWithNibName:NSStringFromClass([HomeViewController class]) bundle:nil];
+    self.naviController = [[UINavigationController alloc] initWithRootViewController:viewController];
     self.window.rootViewController = self.naviController;
 
     self.window.backgroundColor = [UIColor whiteColor];

@@ -57,27 +57,19 @@ static NSString *kKMWebViewSampleURL = @"https://github.com/matsuda/KMWebViewCon
     return (interfaceOrientation == UIInterfaceOrientationPortrait);
 }
 
-- (void)dealloc
-{
-    [originalButton release];
-    [inheritanceButton release];
-    [super dealloc];
-}
-
 - (IBAction)openWebFromOriginalButton:(id)sender
 {
-    KMWebViewController *controller = [[[KMWebViewController alloc] initWithNibName:nil bundle:nil] autorelease];
+    KMWebViewController *controller = [[KMWebViewController alloc] initWithNibName:nil bundle:nil];
     controller.url = kKMWebViewSampleURL;
     [self.navigationController pushViewController:controller animated:YES];
 }
 
 - (IBAction)openWebFromInheritanceButton:(id)sender
 {
-    InheritanceViewController *controller = [[[InheritanceViewController alloc] initWithNibName:nil bundle:nil] autorelease];
+    InheritanceViewController *controller = [[InheritanceViewController alloc] initWithNibName:nil bundle:nil];
     controller.url = kKMWebViewSampleURL;
-    UINavigationController *naviController = [[[UINavigationController alloc] initWithRootViewController:controller] autorelease];
-    [self presentModalViewController:naviController animated:YES];
-    // [self presentModalViewController:controller animated:YES];
+    UINavigationController *naviController = [[UINavigationController alloc] initWithRootViewController:controller];
+    [self presentViewController:naviController animated:YES completion:nil];
 }
 
 @end
